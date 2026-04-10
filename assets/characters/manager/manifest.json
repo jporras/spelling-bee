@@ -1,0 +1,7 @@
+{
+  "states": {
+    "idle": "FR14_135_MidMan_Normal.png",
+    "active": "FR14_135_MidMan_Special.png",
+    "completed": "FR14_135_MidMan_Smile.png"
+  }
+}

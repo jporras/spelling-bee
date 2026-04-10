@@ -1,0 +1,7 @@
+{
+  "states": {
+    "idle": "FR14_132_YoungF_Normal.png",
+    "active": "FR14_132_YoungF_Angry.png",
+    "completed": "FR14_132_YoungF_Smile.png"
+  }
+}

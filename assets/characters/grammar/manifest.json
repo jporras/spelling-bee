@@ -1,0 +1,7 @@
+{
+  "states": {
+    "idle": "FR14_138_OldWom_Normal.png",
+    "active": "FR14_138_OldWom_Special.png",
+    "completed": "FR14_138_OldWom_Smile.png"
+  }
+}

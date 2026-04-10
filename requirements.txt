@@ -1,0 +1,6 @@
+PyQt6
+sounddevice
+numpy
+faster-whisper
+pyttsx3
+llama-cpp-python

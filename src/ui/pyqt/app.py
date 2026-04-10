@@ -1,0 +1,36 @@
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from PyQt6.QtWidgets import QApplication
+
+from src.application.agent import Agent
+from src.application.memory import MemoryManager
+from src.application.skill_registry import SkillRegistry
+from src.application.supervisor import SupervisorAgent
+from src.infrastructure.audio.microphone_recorder import MicrophoneRecorder
+from src.infrastructure.config import Settings
+from src.infrastructure.persistence.user_store import UserStore
+from src.infrastructure.skill_loader import SkillLoader
+from src.ui.pyqt.main_window import MainWindow
+
+
+def build_desktop_dependencies(root: Path) -> tuple[SupervisorAgent, MicrophoneRecorder, Settings]:
+    settings = Settings.from_project_root(root)
+    registry = SkillRegistry()
+    SkillLoader(settings.skills_dir).load_into(registry)
+    router = Agent(registry)
+    memory = MemoryManager(UserStore(settings.data_dir))
+    supervisor = SupervisorAgent(router, memory)
+    recorder = MicrophoneRecorder(output_dir=settings.recordings_dir)
+    return supervisor, recorder, settings
+
+
+def run_app(root: Path) -> int:
+    app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(True)
+    supervisor, recorder, settings = build_desktop_dependencies(root)
+    window = MainWindow(supervisor, recorder, settings)
+    window.show()
+    return app.exec()

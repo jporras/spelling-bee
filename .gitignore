@@ -1,0 +1,26 @@
+# Local environment
+.venv/
+.env
+.env.*
+!.env.example
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local models and Hugging Face cache
+models/
+
+# Runtime user data and generated files
+runtime/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/

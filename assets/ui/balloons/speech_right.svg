@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <path
+    d="M50 48
+       Q320 18 560 66
+       Q602 78 602 120
+       L602 230
+       Q602 282 548 290
+       L548 292
+       Q544 298 546 314
+       Q552 340 538 346
+       Q524 350 506 340
+       Q486 326 468 296
+       L88 300
+       Q42 300 42 252
+       L42 92
+       Q42 54 50 48 Z"
+    fill="{{FILL}}"
+    stroke="{{STROKE}}"
+    stroke-width="6"
+    stroke-linejoin="round"
+  />
+</svg>

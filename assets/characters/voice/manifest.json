@@ -1,0 +1,7 @@
+{
+  "states": {
+    "idle": "FR14_140_Innkeep_Normal.png",
+    "active": "FR14_140_Innkeep_Special.png",
+    "completed": "FR14_140_Innkeep_Smile.png"
+  }
+}
