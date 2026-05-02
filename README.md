@@ -23,19 +23,25 @@ El objetivo de la aplicacion es ayudar a practicar ingles de forma progresiva: r
 - `demo.py`: prueba rapida por consola del skill de correccion.
 - `dev.py`: herramientas de desarrollo para crear skills o adapters.
 - `src/domain`: entidades y puertos base.
-- `src/application`: supervisor, routing, memoria, modos de practica y subagentes.
+- `src/application`: logica principal separada en `agents`, `modes`, `supervisor`, `memory` y `services`.
 - `src/infrastructure`: adaptadores para audio, STT, LLM, TTS, configuracion, carga dinamica de skills y persistencia.
 - `src/ui/pyqt`: ventana principal, widgets ukagaka, temas y exportacion de reportes.
 - `src/devtools`: scaffolding usado por `dev.py`.
 - `skills`: habilidades cargadas dinamicamente en runtime.
-- `prompts`: prompts usados por skills en runtime, por ahora la plantilla de correccion.
+- `prompts/agents`: prompts de personalidad para Orion, Nova, Pulse, Glyph, Echo, Vera y Atlas. Visualmente, `Talk` usa el agente `conversation`, hoy presentado como Alden.
+- `prompts/skills`: prompts pedagogicos por modo: `grammar`, `talk`, `listen` y `spell`.
+- `prompts/correction_prompt.txt`: plantilla concreta que sigue usando el skill de correccion actual.
 - `assets`: personajes, manifests visuales y globo de dialogo.
 - `themes`: temas visuales editables.
 - `models`: modelos GGUF descargados o colocados manualmente.
 - `runtime`: datos generados, grabaciones temporales, SQLite y reportes PDF.
 - `tests`: pruebas unitarias del sistema.
 
-Se eliminaron carpetas antiguas que ya no participaban en la app: `src/ui/ukagaka`, `skills/dev` y caches `__pycache__` del proyecto. En `prompts` solo se conserva la plantilla que usa el skill de correccion.
+Compatibilidad:
+
+- `src/application/supervisor.py`, `memory.py`, `practice_modes.py`, `listening.py`, `agent.py`, `skill_registry.py` y `sub_agents.py` siguen existiendo como fachadas de compatibilidad.
+- La implementacion real nueva vive en subpaquetes para no romper imports viejos ni `python main.py`.
+- No se agrego RAG, vector store ni retrieval.
 
 ## Inventario de Carpetas
 
@@ -48,7 +54,7 @@ Esta tabla sirve como mapa para futuras limpiezas. Si una carpeta aparece como `
 | `assets/characters` | Conservar | Personajes por agente: `manager`, `grammar`, `conversation`, `transcription`, `spelling`, `voice`, `evaluation`, `learning`. | Mantener carpetas con `manifest.json`; `temp` es reserva para personajes futuros. |
 | `assets/ui` | Conservar | Recursos visuales de UI, especialmente `balloons/speech_right.svg`. | Necesaria para el globo de texto. |
 | `models` | Generada / local | Modelos GGUF y cache de Hugging Face. | No es codigo. Puede pesar mucho; conservar si no quieres volver a descargar el modelo. |
-| `prompts` | Conservar | Plantillas usadas por skills en runtime. Hoy contiene `correction_prompt.txt`. | Mantener mientras `skills/correction/module.py` lea esa plantilla. |
+| `prompts` | Conservar | Prompts de agentes, prompts de modos y plantilla de correccion. | Mantener `prompts/agents`, `prompts/skills` y `correction_prompt.txt` mientras el skill de correccion lo use. |
 | `runtime` | Generada | Base SQLite, grabaciones temporales y reportes PDF. | No es codigo. Conservar si quieres historial; limpiar grabaciones/reportes si ocupan espacio. |
 | `runtime/data` | Generada importante | Memoria del usuario en `app.sqlite3`. | No borrar salvo que quieras reiniciar progreso. |
 | `runtime/recordings` | Generada temporal | WAV creados durante grabacion. | Se puede limpiar si no hay grabacion activa. |
@@ -59,7 +65,7 @@ Esta tabla sirve como mapa para futuras limpiezas. Si una carpeta aparece como `
 | `skills/transcription` | Conservar | Adaptador skill para STT. | Necesaria para grabacion/audio. |
 | `skills/tts` | Conservar | Sintesis de voz. | Necesaria para pronunciar frases/respuestas. |
 | `src` | Conservar | Codigo fuente principal. | No borrar. |
-| `src/application` | Conservar | Supervisor, memoria, subagentes y modos de practica. | Corazon de la logica de la app. |
+| `src/application` | Conservar | Corazon de la app. | Ahora se organiza por `agents`, `modes`, `supervisor`, `memory` y `services`; los archivos legacy se mantienen por compatibilidad. |
 | `src/devtools` | Conservar | Funciones usadas por `dev.py` para scaffolding. | Mantener mientras exista `dev.py` y pruebas de devtools. |
 | `src/domain` | Conservar | Entidades y puertos compartidos. | Base de arquitectura. |
 | `src/infrastructure` | Conservar | Configuracion, loaders, adapters, persistencia, audio, LLM, STT y TTS. | Necesaria para conectar la app con herramientas reales. |
@@ -87,49 +93,147 @@ Regla practica para futuras limpiezas: antes de borrar una carpeta, buscar refer
 - Acceso aceptado al modelo de Hugging Face si se usa Gemma u otro modelo gated.
 - Microfono funcional para los modos de voz.
 
-## Instalacion
+## Instalacion Rapida
 
-Crear y activar entorno:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-Configurar entorno:
+Si solo quieres levantar la app en Windows lo mas rapido posible:
 
 ```powershell
+git clone https://github.com/jporras/spelling-bee.git
+cd spelling-bee
+.\setup.ps1
 Copy-Item .env.example .env
+.\.venv\Scripts\Activate.ps1
+python .\main.py
 ```
 
-Editar `.env`:
+Antes del primer arranque revisa `.env` y ajusta como minimo:
 
 ```env
-APP_USER_NAME=jorge
+APP_USER_NAME=guest
 UI_THEME=cream
 HF_TOKEN=tu_token_de_huggingface
 AUTO_DOWNLOAD_MODEL=true
 HF_MODEL_REPO=google/gemma-3-4b-it-qat-q4_0-gguf
 LLAMA_CPP_MODEL=models/gemma-3-4b-it-q4_0.gguf
-LLAMA_CPP_N_CTX=2048
-LLAMA_CPP_MAX_TOKENS=256
 FASTER_WHISPER_MODEL=base
 TTS_RATE=180
 ```
 
-Ejecutar:
+Notas rapidas:
+
+- `setup.ps1` crea `.venv`, instala dependencias e intenta reinstalar `llama-cpp-python` usando Visual Studio Build Tools si los detecta.
+- En el primer arranque la app puede tardar mientras descarga el modelo GGUF si `AUTO_DOWNLOAD_MODEL=true`.
+- La carpeta `models/` no viene incluida en el repo; se crea localmente cuando descargas o copias un modelo.
+
+## Instalacion Detallada
+
+1. Instala Python 3.11 y confirma que `python --version` responda desde PowerShell.
+2. Instala Visual Studio Build Tools con la carga `Desktop development with C++`.
+3. Clona el repositorio.
+4. Crea y activa el entorno virtual.
+5. Instala dependencias.
+6. Copia `.env.example` a `.env`.
+7. Ajusta el modelo y tu token de Hugging Face si vas a usar descarga automatica.
+8. Verifica el entorno.
+9. Ejecuta la app.
+
+Comandos:
 
 ```powershell
+git clone https://github.com/jporras/spelling-bee.git
+cd spelling-bee
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+Copy-Item .env.example .env
+.\verify_env.ps1
 python .\main.py
 ```
 
-Probar:
+Variables recomendadas en `.env`:
+
+```env
+HF_TOKEN=tu_token_de_huggingface
+LLAMA_CPP_MODEL=models/gemma-3-4b-it-q4_0.gguf
+AUTO_DOWNLOAD_MODEL=true
+HF_MODEL_REPO=google/gemma-3-4b-it-qat-q4_0-gguf
+HF_MODEL_FILE=
+UI_THEME=cream
+APP_USER_NAME=guest
+LLAMA_CPP_N_CTX=2048
+LLAMA_CPP_TEMPERATURE=0.2
+LLAMA_CPP_MAX_TOKENS=256
+FASTER_WHISPER_MODEL=base
+RECORDING_DURATION_SECONDS=4
+TTS_VOICE_NAME=default
+TTS_RATE=180
+```
+
+## Primer Arranque
+
+- Si `AUTO_DOWNLOAD_MODEL=true`, la app intentara descargar el archivo GGUF configurado en `HF_MODEL_REPO`.
+- Si el repositorio de Hugging Face es gated, debes aceptar sus terminos en la web de Hugging Face antes de usar tu token.
+- Si prefieres evitar la descarga automatica, coloca manualmente el `.gguf` dentro de `models/` y apunta `LLAMA_CPP_MODEL` a esa ruta.
+- La base de datos `runtime/data/app.sqlite3` se crea localmente al usar la app.
+
+## Verificacion
+
+Comprobacion minima:
+
+```powershell
+.\verify_env.ps1
+```
+
+Pruebas unitarias:
 
 ```powershell
 python -m unittest
 ```
+
+## Troubleshooting
+
+### `pip install -r requirements.txt` falla en `llama-cpp-python`
+
+- Asegurate de tener Visual Studio Build Tools con `Desktop development with C++`.
+- Cierra y abre otra terminal despues de instalar las tools.
+- Prueba el script `.\setup.ps1`, que intenta reinstalar `llama-cpp-python` usando `vcvars64.bat`.
+
+### La app no descarga el modelo
+
+- Revisa que `HF_TOKEN` exista en `.env`.
+- Confirma que aceptaste el acceso al modelo en Hugging Face si es gated.
+- Verifica que `HF_MODEL_REPO` sea correcto.
+- Si sigue fallando, descarga el `.gguf` manualmente y guardalo en `models/`, luego actualiza `LLAMA_CPP_MODEL`.
+
+### Error de modelo no encontrado o ruta invalida
+
+- Comprueba que el archivo indicado en `LLAMA_CPP_MODEL` exista realmente.
+- Usa rutas relativas desde la raiz del proyecto, por ejemplo `models/gemma-3-4b-it-q4_0.gguf`.
+- Si cambiaste de modelo, revisa que el nombre del archivo en `.env` coincida con el descargado.
+
+### El microfono no funciona
+
+- Confirma que Windows tenga permiso para usar el microfono.
+- Cierra apps que puedan estar reteniendo el dispositivo de audio.
+- Verifica que `sounddevice` se haya instalado bien con `.\verify_env.ps1`.
+- Prueba primero los modos por texto para aislar si el problema es solo de captura.
+
+### La ventana abre pero alguna voz o skill no responde
+
+- Revisa la consola desde la que lanzaste `python .\main.py`; ahi suelen verse los errores reales.
+- Ejecuta `python -m unittest` para confirmar que el entorno base sigue sano.
+- Si falta un modelo o dependencia opcional, algunas rutas tienen fallback, pero la experiencia completa requiere STT, TTS y LLM funcionando.
+
+### PowerShell bloquea la activacion del entorno
+
+- Ejecuta PowerShell como usuario normal y prueba:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+- Luego activa otra vez con `.\.venv\Scripts\Activate.ps1`.
 
 ## Flujo de Comunicacion
 
@@ -145,14 +249,15 @@ python -m unittest
 ## Modos de Practica
 
 - `Grammar`: el usuario escribe o dice una frase; Nova revisa ortografia/gramatica, pronuncia la frase, propone correccion y sugiere una forma mas natural.
-- `Talk`: Nova muestra una frase; el usuario la pronuncia; la app compara el intento y permite reintentar o pedir una nueva frase. Para iniciar se escribe `start` o se usa `Ctrl+N`.
+- `Talk`: Alden muestra una frase; el usuario la pronuncia; la app compara el intento y permite reintentar o pedir una nueva frase. Para iniciar se escribe `start` o se usa `Ctrl+N`.
 - `Listen`: Pulse muestra y pronuncia un parrafo, hace una pregunta y evalua que tan acertada fue la respuesta del usuario. Para iniciar se escribe `start` o se usa `Ctrl+N`.
 - `Spell`: Glyph pide una lista de palabras o propone una; el usuario deletrea por voz y la app valida letra por letra. Para iniciar una palabra sugerida se escribe `start` o se usa `Ctrl+N`.
 
 ## Personajes
 
 - `Orion`: supervisor y coordinador general.
-- `Nova`: conversacion, gramatica y pronunciacion guiada.
+- `Nova`: gramatica y refinamiento de expresion.
+- `Alden`: conversacion guiada y practica de `Talk`.
 - `Pulse`: escucha y transcripcion.
 - `Glyph`: deletreo.
 - `Echo`: voz y reproduccion TTS.
@@ -208,6 +313,49 @@ python .\dev.py create-adapter my_adapter --port-kind custom
 ```
 
 El loader carga automaticamente las carpetas dentro de `skills` que tengan un `module.py` con funcion `build()`.
+
+## Convertir A EXE En Windows
+
+El proyecto incluye un metodo para generar un `.exe` de Windows con PyInstaller.
+
+Preparacion:
+
+```powershell
+.\setup.ps1
+.\.venv\Scripts\Activate.ps1
+```
+
+Generar el ejecutable:
+
+```powershell
+.\build_exe.ps1
+```
+
+Salida esperada:
+
+- El ejecutable se genera en `dist/WhisperUkagaka/WhisperUkagaka.exe`.
+- El script tambien crea `models/`, `runtime/` y una copia inicial de `.env` dentro de `dist/WhisperUkagaka/`.
+- Los recursos necesarios para la UI y los skills se empaquetan junto al exe: `assets`, `prompts`, `themes` y `skills`.
+
+Uso del exe:
+
+1. Abre `dist/WhisperUkagaka/.env`.
+2. Ajusta `HF_TOKEN`, `LLAMA_CPP_MODEL`, `HF_MODEL_REPO` o el tema si hace falta.
+3. Si no quieres descarga automatica, copia tu archivo `.gguf` a `dist/WhisperUkagaka/models/`.
+4. Ejecuta `dist/WhisperUkagaka/WhisperUkagaka.exe`.
+
+Notas:
+
+- El metodo actual usa `--onedir`, no `--onefile`. Es mas practico aqui porque la app necesita varios recursos externos y carpetas de trabajo.
+- Los datos del usuario creados por el exe se guardan dentro de `dist/WhisperUkagaka/runtime/`.
+- Si el antivirus o Windows SmartScreen muestra advertencias, es normal en ejecutables sin firma digital.
+
+Si necesitas reconstruir desde cero:
+
+```powershell
+Remove-Item -Recurse -Force .\build, .\dist
+.\build_exe.ps1
+```
 
 ## Que Sigue
 

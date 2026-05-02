@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
         self._recorder = recorder
         self._settings = settings
         self._current_user_id = settings.app_user_name
-        self._assets = CharacterAssetCatalog(Path(settings.base_dir) / "assets" / "characters")
+        self._assets = CharacterAssetCatalog(Path(settings.resource_dir) / "assets" / "characters")
         self._portraits: dict[str, CharacterPortrait] = {}
         self._manager_agent = SubAgent(
             agent_id="manager",
@@ -79,7 +79,7 @@ class MainWindow(QMainWindow):
         self._recording_elapsed_seconds = 0
         self._last_target_phrase = ""
         self._last_spelling_word = ""
-        self._themes = load_themes(Path(settings.base_dir) / "themes")
+        self._themes = load_themes(Path(settings.resource_dir) / "themes")
         self._theme_keys = list(self._themes.keys()) or ["fallback"]
         self._theme_key = settings.ui_theme if settings.ui_theme in self._themes else self._theme_keys[0]
         self._closing = False
@@ -581,7 +581,7 @@ class MainWindow(QMainWindow):
                 "conversation",
                 "Talk mode",
                 (
-                    "I am Nova.\n\n"
+                    "I am Alden.\n\n"
                     "In Talk mode I will give you one phrase to pronounce.\n\n"
                     "You should repeat the phrase by voice.\n\n"
                     "Then I will compare your attempt and help you retry or move to a new phrase.\n\n"
@@ -982,17 +982,17 @@ class MainWindow(QMainWindow):
         self._shell_row.setStretch(2, 5 if compact else 6)
         self._action_row.setContentsMargins(0, 0, 0, 2 if compact else 4)
         self._action_row.setSpacing(4 if compact else 8)
-        self._bubble_layout.setContentsMargins(0, 34 if compact else 48, 0, 0)
+        self._bubble_layout.setContentsMargins(0, 6 if compact else 10, 0, 0)
         self._bubble_layout.setSpacing(0)
         self._debug_layout.setContentsMargins(10, 10, 10, 10) if compact else self._debug_layout.setContentsMargins(12, 12, 12, 12)
         self._debug_layout.setSpacing(8 if compact else 10)
-        self.dialogue.setMinimumWidth(515 if compact else 640)
-        self.dialogue.setMaximumWidth(650 if compact else 780)
-        self.dialogue.setMinimumHeight(320 if compact else 410)
+        self.dialogue.setMinimumWidth(799 if compact else 988)
+        self.dialogue.setMaximumWidth(1000 if compact else 1190)
+        self.dialogue.setMinimumHeight(493 if compact else 638)
         self.dialogue.set_density(compact)
         self.conversation.set_density(compact)
         self.dashboard.set_density(compact)
-        self.character_holder.setMinimumSize(230, 390) if compact else self.character_holder.setMinimumSize(420, 650)
+        self.character_holder.setMinimumSize(276, 468) if compact else self.character_holder.setMinimumSize(504, 780)
         input_height = 32 if compact else 38
         button_size = 32 if compact else 38
         self.input_line.setMinimumHeight(input_height)
@@ -1033,7 +1033,10 @@ class MainWindow(QMainWindow):
         menu.addAction(QAction("Pin", self, triggered=self._toggle_pin))
         menu.addAction(QAction("Dashboard", self, triggered=self._toggle_dashboard))
         menu.addAction(QAction("Report", self, triggered=self._export_report))
-        menu.addAction(QAction("Close", self, triggered=self._quit_application))
+        menu.addSeparator()
+        menu.addAction(QAction("Start prompt (Ctrl+N)", self, enabled=False))
+        menu.addAction(QAction("Cancel recording (Esc)", self, enabled=False))
+        menu.addAction(QAction("Close (Ctrl+Q)", self, triggered=self._quit_application))
 
     def _refresh_header_summary(self) -> None:
         self._build_options_menu()

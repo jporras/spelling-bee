@@ -5,6 +5,7 @@ from pathlib import Path
 from src.domain.entities import SkillResult, UserInput
 from src.domain.ports import Skill
 from src.infrastructure.config import Settings
+from src.infrastructure.runtime_paths import get_app_root, get_resource_root
 from src.infrastructure.tts.pyttsx3_adapter import Pyttsx3Adapter
 
 
@@ -28,8 +29,11 @@ class TtsSkill(Skill):
 
 
 def build() -> TtsSkill:
-    root = Path(__file__).resolve().parents[2]
-    settings = Settings.from_project_root(root)
+    default_root = Path(__file__).resolve().parents[2]
+    settings = Settings.from_runtime(
+        get_app_root(default_root),
+        get_resource_root(default_root),
+    )
     return TtsSkill(
         tts=Pyttsx3Adapter(
             voice_name=settings.tts_voice_name,

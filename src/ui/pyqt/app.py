@@ -11,13 +11,16 @@ from src.application.skill_registry import SkillRegistry
 from src.application.supervisor import SupervisorAgent
 from src.infrastructure.audio.microphone_recorder import MicrophoneRecorder
 from src.infrastructure.config import Settings
+from src.infrastructure.runtime_paths import get_app_root, get_resource_root
 from src.infrastructure.persistence.user_store import UserStore
 from src.infrastructure.skill_loader import SkillLoader
 from src.ui.pyqt.main_window import MainWindow
 
 
 def build_desktop_dependencies(root: Path) -> tuple[SupervisorAgent, MicrophoneRecorder, Settings]:
-    settings = Settings.from_project_root(root)
+    app_root = get_app_root(root)
+    resource_root = get_resource_root(root)
+    settings = Settings.from_runtime(app_root, resource_root)
     registry = SkillRegistry()
     SkillLoader(settings.skills_dir).load_into(registry)
     router = Agent(registry)
