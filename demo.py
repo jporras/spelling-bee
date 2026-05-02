@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from src.application.agent import Agent
-from src.application.skill_registry import SkillRegistry
+from src.application.services.router import Agent
+from src.application.services.skill_registry import SkillRegistry
 from src.infrastructure.config import Settings
 from src.infrastructure.skill_loader import SkillLoader
 

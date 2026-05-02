@@ -2,8 +2,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.application.memory import MemoryManager
-from src.application.supervisor import SupervisorAgent
+from src.application.memory.manager import MemoryManager
+from src.application.supervisor.orchestrator import SupervisorAgent
 from src.domain.entities import SkillResult, UserProfile
 from src.infrastructure.persistence.user_store import UserStore
 

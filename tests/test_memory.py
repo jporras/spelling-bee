@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.application.memory import MemoryManager
+from src.application.memory.manager import MemoryManager
 from src.infrastructure.persistence.user_store import UserStore
 
 
