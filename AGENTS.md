@@ -100,7 +100,18 @@ Whisper Ukagaka, tambien llamado `spelling-bee`, es un tutor local de ingles con
 - No borrar `runtime/data` ni `models`.
 - No meter prompts largos dentro de Python si deben vivir en archivos editables.
 - Antes de borrar carpetas o mover archivos sensibles, buscar referencias con `rg`.
-- Ejecutar `python -m unittest` despues de cambios estructurales.
+- Ejecutar `.\.venv\Scripts\python.exe -m unittest` despues de cambios estructurales.
+
+## Permisos De Git Para Codex
+
+El usuario autoriza a Codex a usar Git en este repositorio para el flujo normal de desarrollo:
+
+- Crear ramas temporales para probar nuevas funcionalidades o refactorizaciones.
+- Hacer commits con cambios verificados.
+- Mergear cambios a `main` cuando las pruebas pasen y el estado del arbol sea claro.
+- Hacer `git push` a GitHub cuando el usuario pida subir los cambios.
+
+Este permiso no autoriza comandos destructivos como `git reset --hard`, borrar ramas remotas o forzar pushes sin una peticion explicita.
 
 ## Limites De La UI
 
@@ -119,5 +130,5 @@ La UI no debe decidir la pedagogia ni contener reglas profundas de evaluacion o 
 Antes de cerrar una refactorizacion importante:
 
 1. Confirmar que `python main.py` siga iniciando la app.
-2. Ejecutar `python -m unittest`.
+2. Ejecutar `.\.venv\Scripts\python.exe -m unittest`.
 3. Revisar que `README.md` refleje la arquitectura actual.
