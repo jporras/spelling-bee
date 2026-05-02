@@ -52,6 +52,9 @@ class UserProfile:
     difficulty_level: str = "B1"
     total_interactions: int = 0
     correction_count: int = 0
+    grammar_count: int = 0
+    talk_count: int = 0
+    listen_count: int = 0
     spelling_count: int = 0
     pronunciation_count: int = 0
     recent_errors: list[str] = field(default_factory=list)

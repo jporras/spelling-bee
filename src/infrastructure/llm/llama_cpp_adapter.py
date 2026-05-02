@@ -23,6 +23,8 @@ class LlamaCppAdapter(TextGenerationPort):
         self.n_ctx = n_ctx
         self.temperature = temperature
         self.max_tokens = max_tokens
+        self._llm = None
+        self._loaded_model_path = ""
         self._model_manager = ModelManager(
             target_path=model_path,
             auto_download=auto_download,
@@ -42,11 +44,7 @@ class LlamaCppAdapter(TextGenerationPort):
         if not model_file.exists():
             return self._stub_response(prompt)
 
-        llm = Llama(
-            model_path=str(model_file),
-            n_ctx=self.n_ctx,
-            verbose=False,
-        )
+        llm = self._get_llm(Llama, model_file)
         output = llm.create_chat_completion(
             messages=[
                 {
@@ -63,6 +61,17 @@ class LlamaCppAdapter(TextGenerationPort):
             max_tokens=self.max_tokens,
         )
         return output["choices"][0]["message"]["content"].strip()
+
+    def _get_llm(self, llama_factory, model_file: Path):
+        model_path = str(model_file)
+        if self._llm is None or self._loaded_model_path != model_path:
+            self._llm = llama_factory(
+                model_path=model_path,
+                n_ctx=self.n_ctx,
+                verbose=False,
+            )
+            self._loaded_model_path = model_path
+        return self._llm
 
     def _stub_response(self, prompt: str) -> str:
         fallback_model = os.environ.get("LLAMA_CPP_MODEL", self.model_path)

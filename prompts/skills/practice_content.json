@@ -1,0 +1,96 @@
+{
+  "talk_phrases": {
+    "A2": [
+      "I like apples.",
+      "She is my friend.",
+      "We go to school by bus."
+    ],
+    "B1": [
+      "I would like a cup of tea, please.",
+      "My brother usually walks to work in the morning.",
+      "We visited the museum because the weather was rainy."
+    ],
+    "B2": [
+      "Could you tell me where the train station is?",
+      "I decided to stay home because I needed to finish my report.",
+      "She enjoys learning languages because it helps her travel with confidence."
+    ],
+    "C1": [
+      "Although the meeting was delayed, the team still managed to present a convincing proposal.",
+      "If I had prepared earlier, I would have felt far more confident during the interview.",
+      "The documentary was so engaging that we discussed its main ideas for nearly an hour afterward."
+    ]
+  },
+  "listening_exercises": {
+    "A2": [
+      {
+        "id": "park",
+        "passage": "Tom went to the park after lunch. He played football with two friends.",
+        "question": "Where did Tom go after lunch?",
+        "expected_keywords": ["park"],
+        "answer_hint": "He went to the park."
+      },
+      {
+        "id": "breakfast",
+        "passage": "Sara had eggs and toast for breakfast before school.",
+        "question": "What did Sara eat for breakfast?",
+        "expected_keywords": ["eggs", "toast"],
+        "answer_hint": "She ate eggs and toast."
+      }
+    ],
+    "B1": [
+      {
+        "id": "library",
+        "passage": "Emma went to the library after school because she needed a book for her history class. She borrowed a book about ancient Egypt and planned to read it that evening.",
+        "question": "Why did Emma go to the library?",
+        "expected_keywords": ["history", "book", "class"],
+        "answer_hint": "She went because she needed a book for her history class."
+      },
+      {
+        "id": "market",
+        "passage": "On Saturday morning, Diego walked to the market with his sister. They bought fresh fruit, bread, and some cheese for lunch.",
+        "question": "What did Diego and his sister buy?",
+        "expected_keywords": ["fruit", "bread", "cheese"],
+        "answer_hint": "They bought fruit, bread, and cheese."
+      }
+    ],
+    "B2": [
+      {
+        "id": "train",
+        "passage": "Lina missed the first train, so she took the next one and arrived ten minutes late to work. She sent a message to her manager while she was waiting on the platform.",
+        "question": "Why did Lina arrive late to work?",
+        "expected_keywords": ["missed", "train", "next"],
+        "answer_hint": "She arrived late because she missed the first train and had to take the next one."
+      },
+      {
+        "id": "presentation",
+        "passage": "Marcus spent the evening practicing his presentation because he wanted to feel confident the next day. He also printed extra notes in case his slides failed.",
+        "question": "Why did Marcus print extra notes?",
+        "expected_keywords": ["slides", "failed", "notes"],
+        "answer_hint": "He printed extra notes in case his slides failed."
+      }
+    ],
+    "C1": [
+      {
+        "id": "proposal",
+        "passage": "Although the committee appreciated the creativity of the proposal, they postponed the decision until they could review the budget in more detail. For that reason, Elena revised the financial section before the next meeting.",
+        "question": "Why did Elena revise the financial section?",
+        "expected_keywords": ["budget", "detail", "meeting"],
+        "answer_hint": "She revised it because the committee wanted to review the budget in more detail before deciding."
+      },
+      {
+        "id": "documentary",
+        "passage": "After watching the documentary, the students discussed how media can shape public opinion, especially when complex issues are presented too simply. Their teacher asked them to compare the film with a newspaper article on the same topic.",
+        "question": "What comparison did the teacher ask the students to make?",
+        "expected_keywords": ["film", "newspaper", "article"],
+        "answer_hint": "The teacher asked them to compare the documentary with a newspaper article on the same topic."
+      }
+    ]
+  },
+  "spelling_words": {
+    "A2": ["cat", "book", "fish", "tree", "milk"],
+    "B1": ["apple", "window", "planet", "school", "garden"],
+    "B2": ["journey", "language", "sunlight", "backpack", "kitchen"],
+    "C1": ["knowledge", "thoughtful", "architecture", "opportunity", "development"]
+  }
+}

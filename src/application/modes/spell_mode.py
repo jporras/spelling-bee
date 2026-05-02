@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import re
 
 from src.application.modes.grammar_mode import profile_to_metadata
+from src.application.modes.practice_content import PracticeContent, load_practice_content
 from src.domain.entities import AgentStep, OrchestrationResult, UserProfile
 
 
@@ -20,15 +21,11 @@ class SpellSession:
 
 
 class SpellPracticeManager:
-    def __init__(self) -> None:
+    def __init__(self, practice_content: PracticeContent | None = None) -> None:
+        practice_content = practice_content or load_practice_content()
         self._active_sessions: dict[str, SpellSession] = {}
         self._proposal_index_by_level = {"A2": 0, "B1": 0, "B2": 0, "C1": 0}
-        self._proposed_words_by_level = {
-            "A2": ("cat", "book", "fish", "tree", "milk"),
-            "B1": ("apple", "window", "planet", "school", "garden"),
-            "B2": ("journey", "language", "sunlight", "backpack", "kitchen"),
-            "C1": ("knowledge", "thoughtful", "architecture", "opportunity", "development"),
-        }
+        self._proposed_words_by_level = practice_content.spelling_words
 
     def current(self, user_id: str) -> SpellSession | None:
         return self._active_sessions.get(user_id)
@@ -124,7 +121,14 @@ class SpellModeWorkflow:
         primary_result, primary_step = self._agents["spelling"].run(self._router, content, context={"difficulty_level": profile.difficulty_level})
         evaluation = self._manager.evaluate_spelling(user_id, content)
         final_text = f"{evaluation['feedback']}\n\nDo you want to retry this word or move to the next one?"
-        updated_profile, evaluation_report, learning_note = self._memory.register_interaction(user_id=user_id, source=source, original_input=content, selected_mode="spelling", final_text=final_text, metadata={"target_word": evaluation["target_word"]})
+        updated_profile, evaluation_report, learning_note = self._memory.register_interaction(
+            user_id=user_id,
+            source=source,
+            original_input=content,
+            selected_mode="spelling",
+            final_text=final_text,
+            metadata={"target_word": evaluation["target_word"], "is_correct": evaluation["is_correct"]},
+        )
         return OrchestrationResult(
             selected_mode="spelling",
             final_text=final_text,
@@ -134,6 +138,7 @@ class SpellModeWorkflow:
                 "feedback": primary_result.metadata.get("feedback", evaluation["feedback"]),
                 "target_word": evaluation["target_word"],
                 "recognized_word": evaluation["recognized_word"],
+                "is_correct": evaluation["is_correct"],
                 "exercise_level": session.level,
                 "spelling_phase": "feedback",
                 "evaluation_score": 1.0 if evaluation["is_correct"] else 0.45,

@@ -2,7 +2,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from PyQt6.QtWidgets import QApplication
+try:
+    from PyQt6.QtWidgets import QApplication
+except ImportError:  # pragma: no cover - depends on local test environment
+    QApplication = None
+
+if QApplication is None:
+    raise unittest.SkipTest("PyQt6 is not installed in this Python environment.")
 
 from src.ui.pyqt.reports import build_user_report_html, export_user_report_pdf
 

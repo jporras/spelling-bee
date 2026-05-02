@@ -5,6 +5,7 @@ from difflib import SequenceMatcher
 import re
 
 from src.application.modes.grammar_mode import profile_to_metadata
+from src.application.modes.practice_content import PracticeContent, load_practice_content
 from src.domain.entities import AgentStep, OrchestrationResult, UserProfile
 
 
@@ -15,27 +16,11 @@ class TalkExercise:
 
 
 class TalkPracticeManager:
-    def __init__(self) -> None:
+    def __init__(self, practice_content: PracticeContent | None = None) -> None:
+        practice_content = practice_content or load_practice_content()
         self._active_sessions: dict[str, TalkExercise] = {}
         self._phrase_index_by_level = {"A2": 0, "B1": 0, "B2": 0, "C1": 0}
-        self._phrases_by_level = {
-            "A2": ("I like apples.", "She is my friend.", "We go to school by bus."),
-            "B1": (
-                "I would like a cup of tea, please.",
-                "My brother usually walks to work in the morning.",
-                "We visited the museum because the weather was rainy.",
-            ),
-            "B2": (
-                "Could you tell me where the train station is?",
-                "I decided to stay home because I needed to finish my report.",
-                "She enjoys learning languages because it helps her travel with confidence.",
-            ),
-            "C1": (
-                "Although the meeting was delayed, the team still managed to present a convincing proposal.",
-                "If I had prepared earlier, I would have felt far more confident during the interview.",
-                "The documentary was so engaging that we discussed its main ideas for nearly an hour afterward.",
-            ),
-        }
+        self._phrases_by_level = practice_content.talk_phrases
 
     def current(self, user_id: str) -> TalkExercise | None:
         return self._active_sessions.get(user_id)

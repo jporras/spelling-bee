@@ -36,10 +36,19 @@ class MemoryManager:
             selected_mode=selected_mode,
             final_text=final_text,
         )
+        metadata = metadata or {}
+        if selected_mode == "spelling" and metadata.get("is_correct") is False:
+            report.errors = [*report.errors, "spelling-mismatch"]
+            report.score = min(report.score, 0.45)
         profile.total_interactions += 1
         profile.preferred_modes[selected_mode] = profile.preferred_modes.get(selected_mode, 0) + 1
-        if selected_mode == "free":
+        if selected_mode == "grammar":
             profile.correction_count += 1
+            profile.grammar_count += 1
+        elif selected_mode == "free":
+            profile.talk_count += 1
+        elif selected_mode == "listen":
+            profile.listen_count += 1
         elif selected_mode == "spelling":
             profile.spelling_count += 1
         elif selected_mode in {"tts", "transcription"}:
@@ -72,9 +81,9 @@ class MemoryManager:
             next_focus=learning_note,
             summary=final_text[:280],
         )
-        target_word = str((metadata or {}).get("target_word", "")).strip().lower()
+        target_word = str(metadata.get("target_word", "")).strip().lower()
         if selected_mode == "spelling" and target_word:
-            was_correct = "spelling-mismatch" not in report.errors
+            was_correct = bool(metadata.get("is_correct", "spelling-mismatch" not in report.errors))
             self._store.record_spelling_word(user_id, target_word, was_correct)
         return profile, report, learning_note
 
