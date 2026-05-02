@@ -20,6 +20,11 @@ runtime/
 *.tmp
 *.bak
 
+# Build artifacts
+build/
+dist/
+*.spec
+
 # OS / editor noise
 .DS_Store
 Thumbs.db

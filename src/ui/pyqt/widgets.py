@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import QFrame, QGraphicsDropShadowEffect, QGridLayout, QHBo
 
 from src.application.sub_agents import SubAgent
 from src.domain.entities import AgentStep
+from src.infrastructure.runtime_paths import get_resource_root
 from src.ui.pyqt.themes import Theme
 
 
@@ -254,7 +255,7 @@ class CharacterPortrait(QWidget):
 
     def set_density(self, compact: bool) -> None:
         self._compact = compact
-        self.setMinimumSize(230, 345) if compact else self.setMinimumSize(410, 580)
+        self.setMinimumSize(276, 414) if compact else self.setMinimumSize(492, 696)
 
     def set_state(self, state: str) -> None:
         self._state = state
@@ -330,7 +331,8 @@ class DialogueBubble(QFrame):
         self._full_text = "The active ukagaka will speak here."
         self._pages: list[str] = []
         self._page_index = 0
-        self._svg_template = (Path(__file__).resolve().parents[3] / "assets" / "ui" / "balloons" / "speech_right.svg").read_text(encoding="utf-8")
+        resource_root = get_resource_root(Path(__file__).resolve().parents[3])
+        self._svg_template = (resource_root / "assets" / "ui" / "balloons" / "speech_right.svg").read_text(encoding="utf-8")
         self._renderer = QSvgRenderer()
         self._build_ui()
 
@@ -400,17 +402,17 @@ class DialogueBubble(QFrame):
     def set_density(self, compact: bool) -> None:
         self._compact = compact
         if compact:
-            self._layout.setContentsMargins(40, 20, 40, 72)
+            self._layout.setContentsMargins(68, 44, 120, 88)
             self.content_box.setMinimumWidth(0)
             self.content_box.setMaximumWidth(16777215)
             self._content_layout.setContentsMargins(0, 0, 0, 0)
-            self._content_layout.setSpacing(2)
+            self._content_layout.setSpacing(6)
         else:
-            self._layout.setContentsMargins(50, 40, 60, 92)
+            self._layout.setContentsMargins(82, 58, 138, 108)
             self.content_box.setMinimumWidth(0)
             self.content_box.setMaximumWidth(16777215)
             self._content_layout.setContentsMargins(0, 0, 0, 0)
-            self._content_layout.setSpacing(3)
+            self._content_layout.setSpacing(8)
         if self._full_text:
             self._pages = _paginate_dialogue(self._full_text, compact=self._compact)
             self._page_index = 0
@@ -606,8 +608,8 @@ def _paginate_dialogue(text: str, *, compact: bool) -> list[str]:
     if not normalized:
         return [""]
 
-    paragraph_limit = 2 if compact else 3
-    char_limit = 155 if compact else 220
+    paragraph_limit = 6 if compact else 7
+    char_limit = 520 if compact else 760
     paragraphs = [part.strip() for part in re.split(r"\n\s*\n+", normalized) if part.strip()]
     if not paragraphs:
         paragraphs = [normalized]

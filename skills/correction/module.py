@@ -6,6 +6,7 @@ from src.domain.entities import SkillResult, UserInput
 from src.domain.ports import Skill
 from src.infrastructure.config import Settings
 from src.infrastructure.llm.llama_cpp_adapter import LlamaCppAdapter
+from src.infrastructure.runtime_paths import get_app_root, get_resource_root
 
 
 class CorrectionSkill(Skill):
@@ -42,9 +43,11 @@ class CorrectionSkill(Skill):
 
 
 def build() -> CorrectionSkill:
-    root = Path(__file__).resolve().parents[2]
-    settings = Settings.from_project_root(root)
-    prompt_template = (root / "prompts" / "correction_prompt.txt").read_text(
+    default_root = Path(__file__).resolve().parents[2]
+    app_root = get_app_root(default_root)
+    resource_root = get_resource_root(default_root)
+    settings = Settings.from_runtime(app_root, resource_root)
+    prompt_template = (resource_root / "prompts" / "correction_prompt.txt").read_text(
         encoding="utf-8"
     )
     llm = LlamaCppAdapter(

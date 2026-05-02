@@ -8,6 +8,7 @@ from pathlib import Path
 @dataclass(slots=True)
 class Settings:
     base_dir: Path
+    resource_dir: Path
     skills_dir: Path
     llama_model_path: str
     llama_n_ctx: int
@@ -31,6 +32,7 @@ class Settings:
         _load_dotenv(root / ".env")
         return cls(
             base_dir=root,
+            resource_dir=root,
             skills_dir=root / "skills",
             llama_model_path=os.environ.get("LLAMA_CPP_MODEL", "models/llama.gguf"),
             llama_n_ctx=int(os.environ.get("LLAMA_CPP_N_CTX", "2048")),
@@ -40,6 +42,33 @@ class Settings:
             recording_duration_seconds=int(os.environ.get("RECORDING_DURATION_SECONDS", "4")),
             recordings_dir=root / "runtime" / "recordings",
             data_dir=root / "runtime" / "data",
+            tts_voice_name=os.environ.get("TTS_VOICE_NAME", "default"),
+            tts_rate=int(os.environ.get("TTS_RATE", "180")),
+            auto_download_model=os.environ.get("AUTO_DOWNLOAD_MODEL", "true").lower() == "true",
+            hf_token=os.environ.get("HF_TOKEN", ""),
+            hf_model_repo=os.environ.get("HF_MODEL_REPO", "google/gemma-3-4b-it-qat-q4_0-gguf"),
+            hf_model_file=os.environ.get("HF_MODEL_FILE", ""),
+            ui_theme=os.environ.get("UI_THEME", "cream"),
+            app_user_name=os.environ.get("APP_USER_NAME", "guest"),
+        )
+
+    @classmethod
+    def from_runtime(cls, app_root: Path, resource_root: Path | None = None) -> "Settings":
+        normalized_app_root = app_root.resolve()
+        normalized_resource_root = (resource_root or app_root).resolve()
+        _load_dotenv(normalized_app_root / ".env")
+        return cls(
+            base_dir=normalized_app_root,
+            resource_dir=normalized_resource_root,
+            skills_dir=normalized_resource_root / "skills",
+            llama_model_path=os.environ.get("LLAMA_CPP_MODEL", "models/llama.gguf"),
+            llama_n_ctx=int(os.environ.get("LLAMA_CPP_N_CTX", "2048")),
+            llama_temperature=float(os.environ.get("LLAMA_CPP_TEMPERATURE", "0.2")),
+            llama_max_tokens=int(os.environ.get("LLAMA_CPP_MAX_TOKENS", "256")),
+            faster_whisper_model=os.environ.get("FASTER_WHISPER_MODEL", "base"),
+            recording_duration_seconds=int(os.environ.get("RECORDING_DURATION_SECONDS", "4")),
+            recordings_dir=normalized_app_root / "runtime" / "recordings",
+            data_dir=normalized_app_root / "runtime" / "data",
             tts_voice_name=os.environ.get("TTS_VOICE_NAME", "default"),
             tts_rate=int(os.environ.get("TTS_RATE", "180")),
             auto_download_model=os.environ.get("AUTO_DOWNLOAD_MODEL", "true").lower() == "true",
