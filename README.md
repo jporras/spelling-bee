@@ -29,7 +29,7 @@ El objetivo de la aplicacion es ayudar a practicar ingles de forma progresiva: r
 - `src/devtools`: scaffolding usado por `dev.py`.
 - `skills`: habilidades cargadas dinamicamente en runtime.
 - `prompts/agents`: prompts de personalidad para Orion, Nova, Alden, Pulse, Glyph, Echo, Vera y Atlas.
-- `prompts/skills`: prompts pedagogicos por modo: `grammar`, `talk`, `listen` y `spell`.
+- `prompts/skills`: prompts pedagogicos por modo y `practice_content.json`, el catalogo editable de frases, ejercicios de escucha y palabras de deletreo.
 - `prompts/correction_prompt.txt`: plantilla concreta que sigue usando el skill de correccion actual.
 - `assets`: personajes, manifests visuales y globo de dialogo.
 - `themes`: temas visuales editables.
@@ -54,7 +54,7 @@ Esta tabla sirve como mapa para futuras limpiezas. Si una carpeta aparece como `
 | `assets/characters` | Conservar | Personajes por agente: `manager`, `grammar`, `conversation`, `transcription`, `spelling`, `voice`, `evaluation`, `learning`. | Mantener carpetas con `manifest.json`; `temp` es reserva para personajes futuros. |
 | `assets/ui` | Conservar | Recursos visuales de UI, especialmente `balloons/speech_right.svg`. | Necesaria para el globo de texto. |
 | `models` | Generada / local | Modelos GGUF y cache de Hugging Face. | No es codigo. Puede pesar mucho; conservar si no quieres volver a descargar el modelo. |
-| `prompts` | Conservar | Prompts de agentes, prompts de modos y plantilla de correccion. | Mantener `prompts/agents`, `prompts/skills` y `correction_prompt.txt` mientras el skill de correccion lo use. |
+| `prompts` | Conservar | Prompts de agentes, prompts de modos, catalogo de practica y plantilla de correccion. | Mantener `prompts/agents`, `prompts/skills`, `prompts/skills/practice_content.json` y `correction_prompt.txt` mientras el skill de correccion lo use. |
 | `runtime` | Generada | Base SQLite, grabaciones temporales y reportes PDF. | No es codigo. Conservar si quieres historial; limpiar grabaciones/reportes si ocupan espacio. |
 | `runtime/data` | Generada importante | Memoria del usuario en `app.sqlite3`. | No borrar salvo que quieras reiniciar progreso. |
 | `runtime/recordings` | Generada temporal | WAV creados durante grabacion. | Se puede limpiar si no hay grabacion activa. |
@@ -82,7 +82,7 @@ Carpetas eliminadas por estar obsoletas:
 | `src/ui/ukagaka` | Era un prototipo minimo de clases `Character`, `Bubble` y `Animation`; la UI real vive en `src/ui/pyqt`. |
 | `skills/dev` | Contenia ideas de skills de desarrollo, pero no tenia `module.py` ni participaba en runtime. El scaffolding real vive en `src/devtools` y `dev.py`. |
 
-Regla practica para futuras limpiezas: antes de borrar una carpeta, buscar referencias con `rg "nombre_carpeta"` y correr `python -m unittest`. Si la carpeta contiene datos del usuario (`runtime/data`) o modelos (`models`), tratarla como datos locales, no como codigo descartable.
+Regla practica para futuras limpiezas: antes de borrar una carpeta, buscar referencias con `rg "nombre_carpeta"` y correr `.\.venv\Scripts\python.exe -m unittest`. Si la carpeta contiene datos del usuario (`runtime/data`) o modelos (`models`), tratarla como datos locales, no como codigo descartable.
 
 ## Software Necesario
 
@@ -188,8 +188,20 @@ Comprobacion minima:
 Pruebas unitarias:
 
 ```powershell
-python -m unittest
+.\.venv\Scripts\python.exe -m unittest
 ```
+
+Si usas el Python global sin PyQt6 instalado, `python -m unittest` sigue corriendo las pruebas de logica y omite la prueba de reportes PDF.
+
+## Contenido De Practica
+
+El contenido base de Talk, Listen y Spell vive en `prompts/skills/practice_content.json`.
+
+- `talk_phrases`: frases por nivel para repetir en Talk.
+- `listening_exercises`: parrafos, preguntas, palabras clave y respuestas esperadas para Listen.
+- `spelling_words`: palabras propuestas por nivel para Spell.
+
+El archivo se carga al iniciar la app y se valida para los niveles `A2`, `B1`, `B2` y `C1`.
 
 ## Troubleshooting
 
@@ -222,7 +234,7 @@ python -m unittest
 ### La ventana abre pero alguna voz o skill no responde
 
 - Revisa la consola desde la que lanzaste `python .\main.py`; ahi suelen verse los errores reales.
-- Ejecuta `python -m unittest` para confirmar que el entorno base sigue sano.
+- Ejecuta `.\.venv\Scripts\python.exe -m unittest` para confirmar que el entorno base sigue sano.
 - Si falta un modelo o dependencia opcional, algunas rutas tienen fallback, pero la experiencia completa requiere STT, TTS y LLM funcionando.
 
 ### PowerShell bloquea la activacion del entorno

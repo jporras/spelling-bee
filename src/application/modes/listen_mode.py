@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from src.application.modes.grammar_mode import profile_to_metadata
+from src.application.modes.practice_content import PracticeContent, load_practice_content
 from src.domain.entities import AgentStep, OrchestrationResult, UserProfile
 
 
@@ -17,27 +18,11 @@ class ListeningExercise:
 
 
 class ListeningExerciseManager:
-    def __init__(self) -> None:
+    def __init__(self, practice_content: PracticeContent | None = None) -> None:
+        practice_content = practice_content or load_practice_content()
         self._active_sessions: dict[str, ListeningExercise] = {}
         self._seed_index_by_level = {"A2": 0, "B1": 0, "B2": 0, "C1": 0}
-        self._exercises_by_level = {
-            "A2": (
-                ListeningExercise("park", "A2", "Tom went to the park after lunch. He played football with two friends.", "Where did Tom go after lunch?", ("park",), "He went to the park."),
-                ListeningExercise("breakfast", "A2", "Sara had eggs and toast for breakfast before school.", "What did Sara eat for breakfast?", ("eggs", "toast"), "She ate eggs and toast."),
-            ),
-            "B1": (
-                ListeningExercise("library", "B1", "Emma went to the library after school because she needed a book for her history class. She borrowed a book about ancient Egypt and planned to read it that evening.", "Why did Emma go to the library?", ("history", "book", "class"), "She went because she needed a book for her history class."),
-                ListeningExercise("market", "B1", "On Saturday morning, Diego walked to the market with his sister. They bought fresh fruit, bread, and some cheese for lunch.", "What did Diego and his sister buy?", ("fruit", "bread", "cheese"), "They bought fruit, bread, and cheese."),
-            ),
-            "B2": (
-                ListeningExercise("train", "B2", "Lina missed the first train, so she took the next one and arrived ten minutes late to work. She sent a message to her manager while she was waiting on the platform.", "Why did Lina arrive late to work?", ("missed", "train", "next"), "She arrived late because she missed the first train and had to take the next one."),
-                ListeningExercise("presentation", "B2", "Marcus spent the evening practicing his presentation because he wanted to feel confident the next day. He also printed extra notes in case his slides failed.", "Why did Marcus print extra notes?", ("slides", "failed", "notes"), "He printed extra notes in case his slides failed."),
-            ),
-            "C1": (
-                ListeningExercise("proposal", "C1", "Although the committee appreciated the creativity of the proposal, they postponed the decision until they could review the budget in more detail. For that reason, Elena revised the financial section before the next meeting.", "Why did Elena revise the financial section?", ("budget", "detail", "meeting"), "She revised it because the committee wanted to review the budget in more detail before deciding."),
-                ListeningExercise("documentary", "C1", "After watching the documentary, the students discussed how media can shape public opinion, especially when complex issues are presented too simply. Their teacher asked them to compare the film with a newspaper article on the same topic.", "What comparison did the teacher ask the students to make?", ("film", "newspaper", "article"), "The teacher asked them to compare the documentary with a newspaper article on the same topic."),
-            ),
-        }
+        self._exercises_by_level = _build_exercises_by_level(practice_content)
 
     def has_active_session(self, user_id: str) -> bool:
         return user_id in self._active_sessions
@@ -115,3 +100,22 @@ class ListenModeWorkflow:
 
 def _normalize_level(level: str) -> str:
     return level if level in {"A2", "B1", "B2", "C1"} else "B1"
+
+
+def _build_exercises_by_level(
+    practice_content: PracticeContent,
+) -> dict[str, tuple[ListeningExercise, ...]]:
+    exercises_by_level: dict[str, tuple[ListeningExercise, ...]] = {}
+    for level, exercises in practice_content.listening_exercises.items():
+        exercises_by_level[level] = tuple(
+            ListeningExercise(
+                exercise_id=str(exercise["id"]),
+                level=level,
+                passage=str(exercise["passage"]),
+                question=str(exercise["question"]),
+                expected_keywords=tuple(str(keyword) for keyword in exercise["expected_keywords"]),
+                answer_hint=str(exercise["answer_hint"]),
+            )
+            for exercise in exercises
+        )
+    return exercises_by_level

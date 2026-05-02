@@ -20,6 +20,7 @@ class UserStore:
             row = connection.execute(
                 """
                 SELECT user_id, difficulty_level, total_interactions, correction_count,
+                       grammar_count, talk_count, listen_count,
                        spelling_count, pronunciation_count, recent_errors, preferred_modes,
                        last_transcript, notes
                 FROM profiles
@@ -34,6 +35,9 @@ class UserStore:
             difficulty_level=row["difficulty_level"],
             total_interactions=row["total_interactions"],
             correction_count=row["correction_count"],
+            grammar_count=row["grammar_count"],
+            talk_count=row["talk_count"],
+            listen_count=row["listen_count"],
             spelling_count=row["spelling_count"],
             pronunciation_count=row["pronunciation_count"],
             recent_errors=_loads(row["recent_errors"], []),
@@ -48,13 +52,17 @@ class UserStore:
                 """
                 INSERT INTO profiles (
                     user_id, difficulty_level, total_interactions, correction_count,
+                    grammar_count, talk_count, listen_count,
                     spelling_count, pronunciation_count, recent_errors, preferred_modes,
                     last_transcript, notes
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(user_id) DO UPDATE SET
                     difficulty_level=excluded.difficulty_level,
                     total_interactions=excluded.total_interactions,
                     correction_count=excluded.correction_count,
+                    grammar_count=excluded.grammar_count,
+                    talk_count=excluded.talk_count,
+                    listen_count=excluded.listen_count,
                     spelling_count=excluded.spelling_count,
                     pronunciation_count=excluded.pronunciation_count,
                     recent_errors=excluded.recent_errors,
@@ -67,6 +75,9 @@ class UserStore:
                     profile.difficulty_level,
                     profile.total_interactions,
                     profile.correction_count,
+                    profile.grammar_count,
+                    profile.talk_count,
+                    profile.listen_count,
                     profile.spelling_count,
                     profile.pronunciation_count,
                     json.dumps(profile.recent_errors, ensure_ascii=True),
@@ -216,6 +227,9 @@ class UserStore:
                     difficulty_level TEXT NOT NULL,
                     total_interactions INTEGER NOT NULL,
                     correction_count INTEGER NOT NULL,
+                    grammar_count INTEGER NOT NULL DEFAULT 0,
+                    talk_count INTEGER NOT NULL DEFAULT 0,
+                    listen_count INTEGER NOT NULL DEFAULT 0,
                     spelling_count INTEGER NOT NULL,
                     pronunciation_count INTEGER NOT NULL,
                     recent_errors TEXT NOT NULL,
@@ -256,12 +270,22 @@ class UserStore:
                 );
                 """
             )
+            self._ensure_profile_columns(connection)
             connection.commit()
 
     def _connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self._db_path)
         connection.row_factory = sqlite3.Row
         return connection
+
+    def _ensure_profile_columns(self, connection: sqlite3.Connection) -> None:
+        rows = connection.execute("PRAGMA table_info(profiles)").fetchall()
+        existing_columns = {row["name"] for row in rows}
+        for column_name in ("grammar_count", "talk_count", "listen_count"):
+            if column_name not in existing_columns:
+                connection.execute(
+                    f"ALTER TABLE profiles ADD COLUMN {column_name} INTEGER NOT NULL DEFAULT 0"
+                )
 
 
 def _loads(raw: str, default):

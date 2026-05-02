@@ -8,6 +8,7 @@ from src.domain.ports import SpeechToTextPort
 class FasterWhisperAdapter(SpeechToTextPort):
     def __init__(self, model_name: str = "base") -> None:
         self.model_name = model_name
+        self._model = None
 
     def transcribe(self, audio_path: str) -> str:
         audio_file = Path(audio_path)
@@ -22,9 +23,14 @@ class FasterWhisperAdapter(SpeechToTextPort):
                 f"'{self.model_name}'. Install faster-whisper for real STT."
             )
 
-        model = WhisperModel(self.model_name)
+        model = self._get_model(WhisperModel)
         segments, info = model.transcribe(str(audio_file))
         transcript = " ".join(segment.text.strip() for segment in segments).strip()
         if transcript:
             return transcript
         return f"[empty transcription] language={getattr(info, 'language', 'unknown')}"
+
+    def _get_model(self, model_factory):
+        if self._model is None:
+            self._model = model_factory(self.model_name)
+        return self._model

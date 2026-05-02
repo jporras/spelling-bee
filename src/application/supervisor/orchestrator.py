@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from src.application.agents import build_default_agents
 from src.application.modes import GrammarModeWorkflow, ListenModeWorkflow, ListeningExerciseManager, SpellModeWorkflow, SpellPracticeManager, TalkModeWorkflow, TalkPracticeManager
+from src.application.modes.practice_content import PracticeContent
 from src.domain.entities import AgentStep, OrchestrationResult, UserProfile
 
 
@@ -14,13 +15,13 @@ class RouteDecision:
 
 
 class SupervisorAgent:
-    def __init__(self, router, memory) -> None:
+    def __init__(self, router, memory, practice_content: PracticeContent | None = None) -> None:
         self._router = router
         self._memory = memory
         self._sub_agents = build_default_agents()
-        self._listen_workflow = ListenModeWorkflow(ListeningExerciseManager(), memory)
-        self._talk_workflow = TalkModeWorkflow(TalkPracticeManager(), memory)
-        self._spell_workflow = SpellModeWorkflow(SpellPracticeManager(), memory, router, self._sub_agents)
+        self._listen_workflow = ListenModeWorkflow(ListeningExerciseManager(practice_content), memory)
+        self._talk_workflow = TalkModeWorkflow(TalkPracticeManager(practice_content), memory)
+        self._spell_workflow = SpellModeWorkflow(SpellPracticeManager(practice_content), memory, router, self._sub_agents)
         self._grammar_workflow = GrammarModeWorkflow(router, memory, self._sub_agents)
 
     def available_agents(self) -> list:
