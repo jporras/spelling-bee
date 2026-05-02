@@ -3,7 +3,7 @@ from __future__ import annotations
 from importlib import import_module
 from pathlib import Path
 
-from src.application.skill_registry import SkillRegistry
+from src.application.services.skill_registry import SkillRegistry
 
 
 class SkillLoader:

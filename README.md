@@ -28,7 +28,7 @@ El objetivo de la aplicacion es ayudar a practicar ingles de forma progresiva: r
 - `src/ui/pyqt`: ventana principal, widgets ukagaka, temas y exportacion de reportes.
 - `src/devtools`: scaffolding usado por `dev.py`.
 - `skills`: habilidades cargadas dinamicamente en runtime.
-- `prompts/agents`: prompts de personalidad para Orion, Nova, Pulse, Glyph, Echo, Vera y Atlas. Visualmente, `Talk` usa el agente `conversation`, hoy presentado como Alden.
+- `prompts/agents`: prompts de personalidad para Orion, Nova, Alden, Pulse, Glyph, Echo, Vera y Atlas.
 - `prompts/skills`: prompts pedagogicos por modo: `grammar`, `talk`, `listen` y `spell`.
 - `prompts/correction_prompt.txt`: plantilla concreta que sigue usando el skill de correccion actual.
 - `assets`: personajes, manifests visuales y globo de dialogo.
@@ -37,10 +37,10 @@ El objetivo de la aplicacion es ayudar a practicar ingles de forma progresiva: r
 - `runtime`: datos generados, grabaciones temporales, SQLite y reportes PDF.
 - `tests`: pruebas unitarias del sistema.
 
-Compatibilidad:
+Notas de arquitectura:
 
-- `src/application/supervisor.py`, `memory.py`, `practice_modes.py`, `listening.py`, `agent.py`, `skill_registry.py` y `sub_agents.py` siguen existiendo como fachadas de compatibilidad.
-- La implementacion real nueva vive en subpaquetes para no romper imports viejos ni `python main.py`.
+- La implementacion real vive en subpaquetes bajo `src/application`.
+- `main.py` y `run_ui.py` siguen iniciando la app sin requerir capas legacy en `src/application`.
 - No se agrego RAG, vector store ni retrieval.
 
 ## Inventario de Carpetas
@@ -65,7 +65,7 @@ Esta tabla sirve como mapa para futuras limpiezas. Si una carpeta aparece como `
 | `skills/transcription` | Conservar | Adaptador skill para STT. | Necesaria para grabacion/audio. |
 | `skills/tts` | Conservar | Sintesis de voz. | Necesaria para pronunciar frases/respuestas. |
 | `src` | Conservar | Codigo fuente principal. | No borrar. |
-| `src/application` | Conservar | Corazon de la app. | Ahora se organiza por `agents`, `modes`, `supervisor`, `memory` y `services`; los archivos legacy se mantienen por compatibilidad. |
+| `src/application` | Conservar | Corazon de la app. | Se organiza por `agents`, `modes`, `supervisor`, `memory` y `services`. |
 | `src/devtools` | Conservar | Funciones usadas por `dev.py` para scaffolding. | Mantener mientras exista `dev.py` y pruebas de devtools. |
 | `src/domain` | Conservar | Entidades y puertos compartidos. | Base de arquitectura. |
 | `src/infrastructure` | Conservar | Configuracion, loaders, adapters, persistencia, audio, LLM, STT y TTS. | Necesaria para conectar la app con herramientas reales. |

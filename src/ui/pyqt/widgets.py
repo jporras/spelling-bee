@@ -9,7 +9,7 @@ from PyQt6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen, QPixmap
 from PyQt6.QtSvg import QSvgRenderer
 from PyQt6.QtWidgets import QFrame, QGraphicsDropShadowEffect, QGridLayout, QHBoxLayout, QLabel, QSizePolicy, QToolButton, QTextEdit, QVBoxLayout, QWidget
 
-from src.application.sub_agents import SubAgent
+from src.application.agents.sub_agent import SubAgent
 from src.domain.entities import AgentStep
 from src.infrastructure.runtime_paths import get_resource_root
 from src.ui.pyqt.themes import Theme

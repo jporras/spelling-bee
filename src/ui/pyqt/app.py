@@ -5,10 +5,10 @@ from pathlib import Path
 
 from PyQt6.QtWidgets import QApplication
 
-from src.application.agent import Agent
-from src.application.memory import MemoryManager
-from src.application.skill_registry import SkillRegistry
-from src.application.supervisor import SupervisorAgent
+from src.application.memory.manager import MemoryManager
+from src.application.services.router import Agent
+from src.application.services.skill_registry import SkillRegistry
+from src.application.supervisor.orchestrator import SupervisorAgent
 from src.infrastructure.audio.microphone_recorder import MicrophoneRecorder
 from src.infrastructure.config import Settings
 from src.infrastructure.runtime_paths import get_app_root, get_resource_root

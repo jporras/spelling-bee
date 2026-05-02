@@ -41,7 +41,7 @@ Whisper Ukagaka, tambien llamado `spelling-bee`, es un tutor local de ingles con
 
 - `prompts/agents`
   Prompts de personalidad de:
-  `orion`, `nova`, `pulse`, `glyph`, `echo`, `vera`, `atlas`.
+  `orion`, `nova`, `alden`, `pulse`, `glyph`, `echo`, `vera`, `atlas`.
 
 - `prompts/skills`
   Prompts pedagogicos por modo:
@@ -101,7 +101,6 @@ Whisper Ukagaka, tambien llamado `spelling-bee`, es un tutor local de ingles con
 - No meter prompts largos dentro de Python si deben vivir en archivos editables.
 - Antes de borrar carpetas o mover archivos sensibles, buscar referencias con `rg`.
 - Ejecutar `python -m unittest` despues de cambios estructurales.
-- Si algo no puede moverse sin romper compatibilidad, dejar wrapper o fachada de compatibilidad.
 
 ## Limites De La UI
 
@@ -114,20 +113,6 @@ La UI solo debe:
 - reproducir audio si corresponde.
 
 La UI no debe decidir la pedagogia ni contener reglas profundas de evaluacion o memoria.
-
-## Compatibilidad Legacy
-
-Si existen archivos legacy en `src/application` como:
-
-- `supervisor.py`
-- `memory.py`
-- `practice_modes.py`
-- `listening.py`
-- `agent.py`
-- `skill_registry.py`
-- `sub_agents.py`
-
-pueden mantenerse como fachadas de compatibilidad mientras la implementacion real viva en subpaquetes.
 
 ## Verificacion Minima
 

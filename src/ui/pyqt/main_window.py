@@ -19,8 +19,8 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from src.application.sub_agents import SubAgent
-from src.application.supervisor import SupervisorAgent
+from src.application.agents.sub_agent import SubAgent
+from src.application.supervisor.orchestrator import SupervisorAgent
 from src.infrastructure.audio.microphone_recorder import MicrophoneRecorder
 from src.infrastructure.config import Settings
 from src.ui.pyqt.reports import export_user_report_pdf
